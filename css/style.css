@@ -1,0 +1,198 @@
+/* MathSprout — Custom styles */
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+body {
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(180deg, #FEF9C3 0%, #ECFDF5 100%);
+  min-height: 100vh;
+  color: #1F2937;
+}
+
+h1, h2, h3, .font-display {
+  font-family: 'Quicksand', system-ui, sans-serif;
+}
+
+/* Page transitions — only one page visible at a time */
+.page {
+  display: none;
+  animation: fade-in 0.4s ease;
+  min-height: 100vh;
+}
+.page.active {
+  display: block;
+}
+
+.mascot {
+  display: inline-block;
+  animation: bounce-soft 2.5s ease-in-out infinite;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #4ADE80;
+  color: white;
+  padding: 16px 32px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 0 #16A34A;
+  font-family: inherit;
+}
+.btn-primary:hover {
+  background-color: #16A34A;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #15803D;
+}
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #15803D;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #16A34A;
+  padding: 12px 24px;
+  border-radius: 16px;
+  font-weight: 600;
+  border: 2px solid #4ADE80;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  transition: all 0.15s;
+}
+.btn-secondary:hover {
+  background-color: #ECFDF5;
+}
+
+.choice-btn {
+  background-color: white;
+  border: 2px solid #E5E7EB;
+  padding: 12px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.15s;
+  min-height: 56px;
+  min-width: 56px;
+  font-family: inherit;
+}
+.choice-btn:hover {
+  border-color: #4ADE80;
+  background-color: #ECFDF5;
+}
+.choice-btn.selected {
+  border-color: #16A34A;
+  background-color: #4ADE80;
+  color: white;
+  transform: scale(1.05);
+}
+
+.input-text {
+  border: 2px solid #E5E7EB;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 18px;
+  width: 100%;
+  font-family: inherit;
+  background-color: white;
+}
+.input-text:focus {
+  outline: none;
+  border-color: #4ADE80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.2);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: white;
+  padding: 14px 24px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-weight: 600;
+  max-width: 90vw;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+.toast-success { border-left: 4px solid #4ADE80; }
+.toast-error { border-left: 4px solid #FB7185; }
+.toast-info { border-left: 4px solid #60A5FA; }
+
+/* Result card */
+.result-card.correct {
+  background: linear-gradient(135deg, #ECFDF5, #FEF9C3);
+  animation: scale-pop 0.5s ease;
+}
+.result-card.incorrect {
+  background: linear-gradient(135deg, #FEF2F2, #FFE4E6);
+  animation: scale-pop 0.5s ease;
+}
+
+.tree-display {
+  display: inline-block;
+  font-size: 80px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+  transition: transform 0.3s;
+}
+.tree-display:hover {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+/* Subtle hover for cards */
+.card-hover {
+  transition: all 0.2s;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+/* Skill bar transitions */
+.mastery-bar {
+  transition: width 0.6s ease-out;
+}
+
+/* Hide spinner on number input */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
