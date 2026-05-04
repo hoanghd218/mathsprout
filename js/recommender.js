@@ -4,12 +4,20 @@
  */
 
 (function () {
-  const TOPICS_LIST = ['addition', 'subtraction', 'multiplication', 'division'];
+  const TOPICS_LIST = ['addition', 'subtraction', 'multiplication', 'division',
+                       'power', 'fraction', 'decimal', 'bodmas',
+                       'pattern', 'placevalue', 'comparison', 'rounding'];
 
   /* What topics is this grade allowed to practice? */
   function getEligibleTopics(grade) {
-    if (grade <= 1) return ['addition', 'subtraction'];
-    if (grade <= 2) return ['addition', 'subtraction', 'multiplication'];
+    if (grade <= 1) return ['addition', 'subtraction', 'pattern', 'comparison'];
+    if (grade <= 2) return ['addition', 'subtraction', 'multiplication',
+                            'pattern', 'placevalue', 'comparison'];
+    if (grade <= 3) return ['addition', 'subtraction', 'multiplication', 'division',
+                            'power', 'pattern', 'placevalue', 'comparison', 'rounding'];
+    if (grade <= 4) return ['addition', 'subtraction', 'multiplication', 'division',
+                            'power', 'fraction', 'decimal', 'bodmas',
+                            'pattern', 'placevalue', 'comparison', 'rounding'];
     return TOPICS_LIST;
   }
 
@@ -80,10 +88,47 @@
     };
   }
 
+  /* Parse user input by question type and check correctness */
+  function gcdLocal(a, b) { return b === 0 ? a : gcdLocal(b, a % b); }
+  function checkAnswer(question, userAnswer) {
+    const raw = String(userAnswer).trim();
+    if (!raw) return { isCorrect: false, parsed: null };
+
+    if (question.answerType === 'fraction') {
+      /* accept "a/b" or whole number */
+      const m = raw.match(/^(-?\d+)\s*\/\s*(\d+)$/);
+      let n, d;
+      if (m) { n = parseInt(m[1], 10); d = parseInt(m[2], 10); }
+      else if (/^-?\d+$/.test(raw)) { n = parseInt(raw, 10); d = 1; }
+      else return { isCorrect: false, parsed: raw };
+      if (d === 0) return { isCorrect: false, parsed: raw };
+      const ok = n * question.answerDenominator === d * question.answerNumerator;
+      return { isCorrect: ok, parsed: `${n}/${d}` };
+    }
+
+    if (question.answerType === 'comparison') {
+      const norm = raw.replace(/\s+/g, '');
+      return { isCorrect: norm === question.answer, parsed: norm };
+    }
+
+    if (question.answerType === 'decimal') {
+      const v = parseFloat(raw);
+      if (Number.isNaN(v)) return { isCorrect: false, parsed: raw };
+      const ok = Math.abs(v - question.answer) < 0.01;
+      return { isCorrect: ok, parsed: v };
+    }
+
+    /* default: integer comparison */
+    const v = parseInt(raw, 10);
+    if (Number.isNaN(v)) return { isCorrect: false, parsed: raw };
+    return { isCorrect: v === question.answer, parsed: v };
+  }
+
   /* Record a single attempt; mutates state and returns metadata */
   function recordAttempt(state, question, userAnswer, timeSpent, hintUsed) {
-    const userAns = parseInt(userAnswer, 10);
-    const isCorrect = userAns === question.answer;
+    const check = checkAnswer(question, userAnswer);
+    const userAns = check.parsed;
+    const isCorrect = check.isCorrect;
 
     const attempt = {
       id: 'att_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
