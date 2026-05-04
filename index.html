@@ -127,7 +127,20 @@
       <div class="text-base" id="dash-recommendation">Let's start learning!</div>
     </div>
 
-    <button id="btn-start-lesson" class="btn-primary w-full text-lg py-5 mb-6">▶ START TODAY'S LESSON</button>
+    <button id="btn-start-lesson" class="btn-primary w-full text-lg py-5 mb-4">▶ START TODAY'S LESSON</button>
+
+    <!-- AI Personalized recommendations -->
+    <div class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-6">
+      <div class="flex items-center justify-between">
+        <div class="font-bold text-purple-700">🤖 Sprout AI Coach</div>
+        <button id="btn-ai-recommend" class="bg-purple-500 text-white text-sm font-bold px-3 py-2 rounded-xl">
+          ✨ Personalize
+        </button>
+      </div>
+      <p class="text-xs text-purple-700 mt-1">AI suggests exercises based on your history (Đề xuất bài tập dựa trên lịch sử học).</p>
+      <div id="ai-recommend-loading" class="text-purple-600 text-sm mt-3" style="display:none">🌱 Sprout is analyzing your progress…</div>
+      <div id="ai-recommend-output" class="mt-3 space-y-2"></div>
+    </div>
 
     <div class="grid grid-cols-2 gap-3">
       <button id="btn-go-practice" class="bg-white rounded-2xl p-4 shadow text-center card-hover">
@@ -179,7 +192,8 @@
 
     <div class="mt-6">
       <label class="block font-bold mb-2">Your answer:</label>
-      <input id="answer-input" type="number" class="input-text text-2xl text-center font-display" autocomplete="off" inputmode="numeric">
+      <input id="answer-input" type="text" class="input-text text-2xl text-center font-display" autocomplete="off" inputmode="text" placeholder="123 or 3/4">
+      <div id="answer-choices" class="flex gap-3 justify-center mt-3" style="display:none"></div>
     </div>
 
     <div id="hint-text" class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mt-4 text-sm" style="display:none"></div>
@@ -211,7 +225,45 @@
       <div class="text-sm text-gray-600" id="result-explanation-vi"></div>
     </div>
 
+    <!-- AI Assistant -->
+    <div class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mt-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-bold text-purple-700">🤖 Sprout AI</div>
+        <button id="btn-ai-explain" class="bg-purple-500 text-white text-sm font-bold px-3 py-2 rounded-xl">
+          🧠 Explain in detail
+        </button>
+      </div>
+      <p class="text-xs text-purple-700 mb-2">Ask the AI tutor for a step-by-step bilingual explanation (Hỏi AI để được giải thích từng bước).</p>
+      <div id="ai-explain-output" class="text-sm" style="display:none">
+        <div id="ai-explain-loading" class="text-purple-600" style="display:none">🌱 Sprout is thinking…</div>
+        <div id="ai-explain-result"></div>
+      </div>
+    </div>
+
     <button id="btn-next-question" class="btn-primary w-full mt-6 text-lg">▶ Next Question</button>
+  </div>
+</section>
+
+<!-- ============== BREAK ============== -->
+<section class="page" id="page-break">
+  <div class="max-w-md mx-auto p-6 text-center pt-16">
+    <div class="text-9xl mascot leading-none">🌱</div>
+    <h2 class="font-display text-3xl font-bold mt-6 text-green-600">Time for a break!</h2>
+    <p class="text-gray-600 mt-2">(Đến giờ nghỉ giải lao!)</p>
+    <p class="text-sm text-gray-500 mt-4">
+      Stretch, drink water, rest your eyes 👀<br>
+      (Vươn vai, uống nước, nghỉ mắt nhé!)
+    </p>
+
+    <div class="bg-white rounded-3xl p-8 my-8 shadow-md">
+      <div class="text-7xl font-display font-bold text-green-500" id="break-timer">60</div>
+      <div class="text-sm text-gray-500 mt-2">seconds remaining</div>
+      <div class="w-full bg-gray-200 rounded-full h-3 mt-4 overflow-hidden">
+        <div id="break-progress-bar" class="bg-green-400 h-3 rounded-full transition-all duration-1000" style="width: 100%"></div>
+      </div>
+    </div>
+
+    <button id="btn-skip-break" class="btn-secondary">⏭ Skip break / Bỏ qua</button>
   </div>
 </section>
 
@@ -315,6 +367,7 @@
 <script src="js/storage.js"></script>
 <script src="js/generators.js"></script>
 <script src="js/recommender.js"></script>
+<script src="js/ai.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/app.js"></script>
 

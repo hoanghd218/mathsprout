@@ -100,10 +100,18 @@ window.VOCABULARY = {
 
 /* Topics with display info */
 window.TOPICS = {
-  addition:       { name: 'Addition',       name_vi: 'Phép cộng', emoji: '➕', symbol: '+' },
-  subtraction:    { name: 'Subtraction',    name_vi: 'Phép trừ',  emoji: '➖', symbol: '−' },
-  multiplication: { name: 'Multiplication', name_vi: 'Phép nhân', emoji: '✖️', symbol: '×' },
-  division:       { name: 'Division',       name_vi: 'Phép chia', emoji: '➗', symbol: '÷' }
+  addition:       { name: 'Addition',       name_vi: 'Phép cộng',          emoji: '➕', symbol: '+' },
+  subtraction:    { name: 'Subtraction',    name_vi: 'Phép trừ',           emoji: '➖', symbol: '−' },
+  multiplication: { name: 'Multiplication', name_vi: 'Phép nhân',          emoji: '✖️', symbol: '×' },
+  division:       { name: 'Division',       name_vi: 'Phép chia',          emoji: '➗', symbol: '÷' },
+  power:          { name: 'Powers & Roots', name_vi: 'Lũy thừa & căn',     emoji: '🔢', symbol: '²' },
+  fraction:       { name: 'Fractions',      name_vi: 'Phân số',            emoji: '🍰', symbol: '½' },
+  decimal:        { name: 'Decimals',       name_vi: 'Số thập phân',       emoji: '🔟', symbol: '·' },
+  bodmas:         { name: 'Order of Ops',   name_vi: 'Thứ tự phép tính',   emoji: '🧠', symbol: '()' },
+  pattern:        { name: 'Number Patterns', name_vi: 'Quy luật dãy số',   emoji: '🔁', symbol: '…' },
+  placevalue:     { name: 'Place Value',     name_vi: 'Giá trị theo hàng', emoji: '🏷️', symbol: '#' },
+  comparison:     { name: 'Compare Numbers', name_vi: 'So sánh số',        emoji: '⚖️', symbol: '<>' },
+  rounding:       { name: 'Rounding',        name_vi: 'Làm tròn',          emoji: '🎯', symbol: '~' }
 };
 
 /* Levels — based on total XP */
@@ -127,5 +135,9 @@ window.BADGES = [
   { code: 'subtraction_master',    emoji: '➖', name: 'Subtraction Master',  desc: 'Mastered Subtraction (90%+)' },
   { code: 'multiplication_master', emoji: '✖️', name: 'Multi Master',        desc: 'Mastered Multiplication (90%+)' },
   { code: 'division_master',       emoji: '➗', name: 'Division Master',     desc: 'Mastered Division (90%+)' },
+  { code: 'power_master',          emoji: '🔢', name: 'Power Master',        desc: 'Mastered Powers & Roots (90%+)' },
+  { code: 'fraction_master',       emoji: '🍰', name: 'Fraction Master',     desc: 'Mastered Fractions (90%+)' },
+  { code: 'decimal_master',        emoji: '🔟', name: 'Decimal Master',      desc: 'Mastered Decimals (90%+)' },
+  { code: 'bodmas_master',         emoji: '🧠', name: 'BODMAS Master',       desc: 'Mastered Order of Ops (90%+)' },
   { code: 'bilingual',             emoji: '🌍', name: 'Bilingual Brain',     desc: 'Used bilingual mode 10 times' }
 ];

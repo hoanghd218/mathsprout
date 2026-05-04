@@ -14,7 +14,15 @@
       addition:       { mastery: 0, attempts: 0, correct: 0 },
       subtraction:    { mastery: 0, attempts: 0, correct: 0 },
       multiplication: { mastery: 0, attempts: 0, correct: 0 },
-      division:       { mastery: 0, attempts: 0, correct: 0 }
+      division:       { mastery: 0, attempts: 0, correct: 0 },
+      power:          { mastery: 0, attempts: 0, correct: 0 },
+      fraction:       { mastery: 0, attempts: 0, correct: 0 },
+      decimal:        { mastery: 0, attempts: 0, correct: 0 },
+      bodmas:         { mastery: 0, attempts: 0, correct: 0 },
+      pattern:        { mastery: 0, attempts: 0, correct: 0 },
+      placevalue:     { mastery: 0, attempts: 0, correct: 0 },
+      comparison:     { mastery: 0, attempts: 0, correct: 0 },
+      rounding:       { mastery: 0, attempts: 0, correct: 0 }
     },
     attempts: [],
     badges: [],
@@ -41,7 +49,9 @@
       const merged = { ...deepClone(DEFAULT_STATE), ...parsed };
 
       // Ensure skillMap has all required topics
-      ['addition', 'subtraction', 'multiplication', 'division'].forEach(t => {
+      ['addition', 'subtraction', 'multiplication', 'division',
+       'power', 'fraction', 'decimal', 'bodmas',
+       'pattern', 'placevalue', 'comparison', 'rounding'].forEach(t => {
         if (!merged.skillMap[t]) {
           merged.skillMap[t] = { mastery: 0, attempts: 0, correct: 0 };
         }
