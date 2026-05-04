@@ -8,6 +8,11 @@
   let hintUsed = false;
   let lastResult = null;
 
+  /* Break timer config */
+  const STUDY_INTERVAL = 180; // 3 minutes of study before a break
+  const BREAK_DURATION = 60;  // 1 minute break
+  let breakInterval = null;
+
   function save() { Storage.save(state); }
 
   /* ===== INIT ===== */
@@ -53,8 +58,19 @@
     /* Result */
     $('#btn-next-question')?.addEventListener('click', nextQuestion);
 
+    /* Break */
+    $('#btn-skip-break')?.addEventListener('click', endBreak);
+
+    /* AI assistant */
+    $('#btn-ai-explain')?.addEventListener('click', aiExplainCurrent);
+    $('#btn-ai-recommend')?.addEventListener('click', aiRecommend);
+
+    /* Probe AI availability once */
+    if (window.AI) AI.checkHealth().then(updateAiButtons);
+
     /* Back buttons */
     $$('.btn-back').forEach(btn => btn.addEventListener('click', () => {
+      if (breakInterval) { clearInterval(breakInterval); breakInterval = null; }
       navigate('dashboard');
       renderDashboard();
     }));
@@ -175,6 +191,25 @@
     input.value = '';
     setTimeout(() => input.focus(), 100);
 
+    /* Render choice buttons for comparison questions */
+    const choicesEl = $('#answer-choices');
+    if (q.type === 'choice' && q.choices) {
+      input.style.display = 'none';
+      choicesEl.style.display = 'flex';
+      choicesEl.innerHTML = q.choices.map(c =>
+        `<button type="button" class="choice-btn answer-choice text-2xl px-6 py-3" data-value="${c}">${c}</button>`
+      ).join('');
+      $$('.answer-choice').forEach(btn => btn.addEventListener('click', (e) => {
+        $$('.answer-choice').forEach(b => b.classList.remove('selected'));
+        e.currentTarget.classList.add('selected');
+        input.value = e.currentTarget.dataset.value;
+      }));
+    } else {
+      input.style.display = '';
+      choicesEl.style.display = 'none';
+      choicesEl.innerHTML = '';
+    }
+
     $('#hint-text').textContent = '';
     $('#hint-text').style.display = 'none';
 
@@ -218,6 +253,12 @@
     const timeSpent = Math.round((Date.now() - questionStartTime) / 1000);
     const result = Recommender.recordAttempt(state, q, userAnswer, timeSpent, hintUsed);
     lastResult = { ...result, question: q, userAnswer };
+
+    /* Track cumulative study time for break scheduling (cap per question to avoid huge values
+       if the user walks away for an hour) */
+    lesson.studySeconds = (lesson.studySeconds || 0) + Math.min(timeSpent, 90);
+    if (lesson.lastBreakAt === undefined) lesson.lastBreakAt = 0;
+
     save();
 
     /* Show new badge toasts */
@@ -264,6 +305,13 @@
     $('#result-explanation-en').textContent = '🇬🇧 ' + question.explanation.en;
     $('#result-explanation-vi').textContent = '🇻🇳 ' + question.explanation.vi;
 
+    /* Reset AI explain panel for new question */
+    const aiOut = $('#ai-explain-output');
+    if (aiOut) {
+      aiOut.style.display = 'none';
+      $('#ai-explain-result').innerHTML = '';
+    }
+
     const lesson = state.currentLesson;
     const isLast = lesson.currentIndex + 1 >= lesson.questions.length;
     $('#btn-next-question').textContent = isLast ? '🏁 Finish Lesson' : '▶ Next Question';
@@ -275,10 +323,154 @@
     save();
     if (lesson.currentIndex >= lesson.questions.length) {
       finishLesson();
-    } else {
-      navigate('practice');
-      renderQuestion();
+      return;
     }
+
+    /* Time for a break? */
+    const studied = lesson.studySeconds || 0;
+    const lastBreak = lesson.lastBreakAt || 0;
+    if (studied - lastBreak >= STUDY_INTERVAL) {
+      lesson.lastBreakAt = studied;
+      save();
+      startBreak();
+      return;
+    }
+
+    navigate('practice');
+    renderQuestion();
+  }
+
+  /* ===== BREAK ===== */
+
+  function startBreak() {
+    navigate('break');
+    let remaining = BREAK_DURATION;
+    const tEl = $('#break-timer');
+    const pBar = $('#break-progress-bar');
+    if (tEl) tEl.textContent = remaining;
+    if (pBar) pBar.style.width = '100%';
+
+    if (breakInterval) clearInterval(breakInterval);
+    breakInterval = setInterval(() => {
+      remaining--;
+      if (tEl) tEl.textContent = remaining;
+      if (pBar) pBar.style.width = `${(remaining / BREAK_DURATION) * 100}%`;
+      if (remaining <= 0) endBreak();
+    }, 1000);
+  }
+
+  function endBreak() {
+    if (breakInterval) { clearInterval(breakInterval); breakInterval = null; }
+    navigate('practice');
+    renderQuestion();
+  }
+
+  /* ===== AI ASSISTANT ===== */
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function updateAiButtons(enabled) {
+    const explainBtn = $('#btn-ai-explain');
+    const recBtn = $('#btn-ai-recommend');
+    [explainBtn, recBtn].forEach(b => {
+      if (!b) return;
+      if (enabled) {
+        b.disabled = false;
+        b.classList.remove('opacity-50');
+      } else {
+        b.disabled = true;
+        b.classList.add('opacity-50');
+        b.title = 'AI not configured — add ANTHROPIC_API_KEY to .env';
+      }
+    });
+  }
+
+  async function aiExplainCurrent() {
+    if (!lastResult) return;
+    const out = $('#ai-explain-output');
+    const loading = $('#ai-explain-loading');
+    const result = $('#ai-explain-result');
+    out.style.display = 'block';
+    loading.style.display = 'block';
+    result.innerHTML = '';
+    try {
+      const r = await AI.explain(lastResult.question, lastResult.userAnswer);
+      result.innerHTML = `
+        <div class="bg-white rounded-xl p-3 mt-2">
+          <div class="text-sm leading-relaxed">${escapeHtml(r.explanation_en || '')}</div>
+          <div class="text-sm leading-relaxed text-gray-600 mt-2">${escapeHtml(r.explanation_vi || '')}</div>
+          ${r.tip_en ? `<div class="mt-3 pt-3 border-t border-purple-100">
+            <div class="text-xs font-bold text-purple-700">💡 Tip / Mẹo</div>
+            <div class="text-sm">${escapeHtml(r.tip_en)}</div>
+            <div class="text-sm text-gray-600">${escapeHtml(r.tip_vi || '')}</div>
+          </div>` : ''}
+        </div>`;
+    } catch (e) {
+      result.innerHTML = `<div class="text-red-600 text-sm">⚠️ ${escapeHtml(e.message)}</div>`;
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  async function aiRecommend() {
+    const out = $('#ai-recommend-output');
+    const loading = $('#ai-recommend-loading');
+    out.innerHTML = '';
+    loading.style.display = 'block';
+    try {
+      const r = await AI.recommend(state);
+      const recs = (r.recommendations || []).map((rec, i) => {
+        const t = TOPICS[rec.topic];
+        const label = t ? `${t.emoji} ${t.name}` : rec.topic;
+        const labelVi = t ? t.name_vi : '';
+        const diffEmoji = rec.difficulty === 'hard' ? '🔥' : rec.difficulty === 'medium' ? '⭐' : '🌱';
+        return `
+          <div class="bg-white rounded-xl p-3 border border-purple-100">
+            <div class="flex items-center justify-between">
+              <div class="font-bold">${escapeHtml(label)} <span class="text-gray-500 text-sm font-normal">(${escapeHtml(labelVi)})</span></div>
+              <button class="ai-rec-start bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-lg" data-topic="${escapeHtml(rec.topic)}" data-count="${rec.count|0}">▶ ${rec.count|0} câu</button>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">${diffEmoji} ${escapeHtml(rec.difficulty || '')}</div>
+            <div class="text-sm mt-2">${escapeHtml(rec.reason_en || '')}</div>
+            <div class="text-sm text-gray-600">${escapeHtml(rec.reason_vi || '')}</div>
+          </div>`;
+      }).join('');
+      out.innerHTML = `
+        <div class="bg-white rounded-xl p-3">
+          <div class="text-sm">${escapeHtml(r.summary_en || '')}</div>
+          <div class="text-sm text-gray-600">${escapeHtml(r.summary_vi || '')}</div>
+        </div>
+        ${recs}`;
+      $$('.ai-rec-start').forEach(btn => btn.addEventListener('click', (e) => {
+        const topic = e.currentTarget.dataset.topic;
+        const count = Math.max(3, Math.min(10, parseInt(e.currentTarget.dataset.count, 10) || 5));
+        startCustomLesson(topic, count);
+      }));
+    } catch (e) {
+      out.innerHTML = `<div class="text-red-600 text-sm">⚠️ ${escapeHtml(e.message)}</div>`;
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  function startCustomLesson(topic, count) {
+    const grade = state.user?.grade || 2;
+    const questions = [];
+    for (let i = 0; i < count; i++) {
+      questions.push(Generators.generate(topic, grade));
+    }
+    state.currentLesson = {
+      questions, currentIndex: 0, startedAt: Date.now(),
+      studySeconds: 0, lastBreakAt: 0,
+      source: `ai_recommend:${topic}`
+    };
+    save();
+    navigate('practice');
+    renderQuestion();
   }
 
   function finishLesson() {

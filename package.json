@@ -1,0 +1,17 @@
+{
+  "name": "mathsprout",
+  "version": "1.1.0",
+  "description": "Bilingual math web app for kids \u2014 STEMFEST 2026",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1",
+    "express": "^4.21.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
