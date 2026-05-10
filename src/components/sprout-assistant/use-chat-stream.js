@@ -22,16 +22,21 @@ export function useChatStream({ grade, age }) {
   const send = useCallback(async (text, images) => {
     const trimmed = (text || '').trim();
     const imgs = Array.isArray(images) ? images.filter(Boolean) : [];
-    // Allow empty text when an image is attached (default prompt is added server-side).
     if ((!trimmed && imgs.length === 0) || status === 'streaming') return;
 
-    const userText = trimmed || (imgs.length > 0 ? '📷 (homework photo)' : '');
+    // When an image is attached without a typed question, fall back to a
+    // default prompt so the server-side message survives content sanitisation
+    // (empty-string messages are dropped). This text also shows in the user
+    // bubble and is forwarded as the text part of the multimodal payload.
+    const userText = trimmed || (imgs.length > 0
+      ? 'Giúp em giải bài này / Please help me solve this homework.'
+      : '');
     const userMsg = {
       id: newId(),
       role: 'user',
       en: userText,
       vi: '',
-      raw: trimmed,
+      raw: userText,
       images: imgs
     };
     const placeholderId = newId();
