@@ -1,8 +1,6 @@
 .DS_Store
 Thumbs.db
 node_modules/
-.env
-.env.local
 *.log
 .vscode/
 .idea/
@@ -12,3 +10,4 @@ node_modules/
 dist/
 build/
 .vercel
+config.bat
