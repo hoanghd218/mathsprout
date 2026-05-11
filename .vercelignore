@@ -1,0 +1,30 @@
+# Build artifacts (Vercel rebuilds)
+node_modules
+dist
+build
+.cache
+.turbo
+
+# Local env
+.env
+.env.local
+
+# Heavy local-only assets / docs / experiments
+plans/
+videos/
+docs/
+.agents/
+.claude/
+*.pptx
+*.mp4
+*.mov
+*.wav
+*.zip
+
+# IDE / OS
+.DS_Store
+.vscode
+.idea
+*.log
+*.swp
+*.swo
